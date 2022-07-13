@@ -20,7 +20,8 @@ function Product(props) {
     const [data, setData] = useState([]);
     const [dopen, setDOpen] = React.useState(false);
     const [did, setDid] = useState();
-    const [update, setUpdate] = useState(false)
+    const [update, setUpdate] = useState(false);
+    const [filterData, setfilterData] = useState([]);
 
 
     const handleDClickOpen = () => {
@@ -136,13 +137,13 @@ function Product(props) {
         formik.setValues(params.row)
 
     }
-    const handleUpdate=(values) =>{
+    const handleUpdate = (values) => {
         let localData = JSON.parse(localStorage.getItem('Product'));
 
-        let udata= localData.map((u) =>{
-            if(u.id === values.id){
+        let udata = localData.map((u) => {
+            if (u.id === values.id) {
                 return values;
-            }else{
+            } else {
                 return u;
             }
         });
@@ -152,16 +153,37 @@ function Product(props) {
         setUpdate(false);
         formik.resetForm();
     }
+    const handleSearch = (val) => {
 
+        let localData = JSON.parse(localStorage.getItem('Product'));
+        let fdata = localData.filter((l) => (
+            l.productname.toLowerCase().includes(val.toLowerCase()) ||
+            l.productdetails.toLowerCase().includes(val.toLowerCase()) ||
+            l.productprice.toString().includes(val)
+
+        ))
+        setfilterData(fdata);
+    }
+
+    let finalData = filterData.length > 0 ? filterData : data
 
     return (
         <div>
             <Button variant="outlined" onClick={handleClickOpen}>
                 Open Product
             </Button>
+            <TextField
+                id="search product"
+                name='searchproduct'
+                label="Search details"
+                type="text"
+                fullWidth
+                variant="standard"
+                onChange={(e) => handleSearch(e.target.value)}
+            />
             <div style={{ height: 400, width: '100%' }}>
                 <DataGrid
-                    rows={data}
+                    rows={finalData}
                     columns={columns}
                     pageSize={5}
                     rowsPerPageOptions={[5]}
@@ -237,10 +259,10 @@ function Product(props) {
                         <DialogActions>
                             <Button onClick={handleClose}>Cancel</Button>
                             {
-                                update ? 
-                                <Button type='submit'>Update</Button>
-                                :
-                                <Button type='submit'>Submit</Button>
+                                update ?
+                                    <Button type='submit'>Update</Button>
+                                    :
+                                    <Button type='submit'>Submit</Button>
                             }
                         </DialogActions>
                     </Form>
